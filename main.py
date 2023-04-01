@@ -1,6 +1,22 @@
 from pygame import *
 from datetime import datetime, timedelta
-  
+from random import randint
+win_width = 1400
+
+win_height = 600
+display.set_caption("Flappy Birds")
+window = display.set_mode((win_width, win_height))
+
+run = True
+finish = False
+clock = time.Clock()
+FPS = 60
+
+background = transform.scale(
+    image.load("ground.png"),
+    (win_width, win_height)
+)
+
 class GameSprite(sprite.Sprite):
     def __init__(self, player_image, player_x, player_y, wight, height):
         super().__init__()
@@ -18,26 +34,23 @@ class Player(GameSprite):
         self.speed = player_speed
     def update(self):
         keys = key.get_pressed()
-        if keys[K_SPACE] and self.rect.y > 5:
+        if keys[K_SPACE] and self.rect.y > 80:
             if self.next_jump <= datetime.now():                         
                 self.rect.y -= 100
-                self.next_jump = datetime.now() + timedelta(seconds = 0.3)  
-        self.rect.x += self.speed
+                self.next_jump = datetime.now() + timedelta(seconds = 0.2)
+            
         self.rect.y += self.speed *2
-        
-back = (200, 255, 255)
-win_width = 600
-win_height = 500
-window = display.set_mode((win_width, win_height))
- 
-run = True
-finish = False
-clock = time.Clock()
-FPS = 60
+
+class Obstacles(GameSprite):
+    def update(self):
+        self.rect.x += self.speed
 
 
-bird = Player('bird.png', 200, 200, 2, 50, 50)
-tryba = GameSprite('tryba.png', 400, 400, 50, 80)
+
+
+bird = Player('bird1.jpg', 200, 200, 2, 50, 50)
+tryba = Obstacles("tryba1.jpg", 1200, 400, 200, 200)
+tryban2 = Obstacles("tryba2.jpg", 1200, 0, 200, 200)
 
 font.init()
 score_text = font.SysFont("Arial", 20)
@@ -48,7 +61,7 @@ point_y = 0
 
 
 while run:
-    window.fill(back)
+    window.blit(background, (0, 0))
 
     xy = score_text.render(str(point_x), 1, (0,0,0))
     window.blit(xy, (10, 20))
@@ -64,10 +77,12 @@ while run:
     if finish == False:
         bird.reset()
         tryba.reset()
+        tryban2.reset()
         bird.update()
-        if sprite.collide_rect(tryba, bird):
+        
+        if sprite.collide_rect(tryba, bird) or sprite.collide_rect(tryban2, bird) :
             finish = True
-
+            
 
 
 
