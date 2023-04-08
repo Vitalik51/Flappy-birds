@@ -1,9 +1,9 @@
 from pygame import *
 from datetime import datetime, timedelta
 from random import randint
-win_width = 1400
+win_width = 1200
 
-win_height = 600
+win_height = 700
 display.set_caption("Flappy Birds")
 window = display.set_mode((win_width, win_height))
 
@@ -34,23 +34,26 @@ class Player(GameSprite):
         self.speed = player_speed
     def update(self):
         keys = key.get_pressed()
-        if keys[K_SPACE] and self.rect.y > 80:
+        if keys[K_SPACE] and self.rect.y > 50:
             if self.next_jump <= datetime.now():                         
                 self.rect.y -= 100
-                self.next_jump = datetime.now() + timedelta(seconds = 0.2)
+                self.next_jump = datetime.now() + timedelta(seconds = 0.45)
             
-        self.rect.y += self.speed *2
+        self.rect.y += self.speed *1.4
 
 class Obstacles(GameSprite):
+    def __init__(self, player_image, player_x, player_y, wight, height, player):
+        super().__init__(player_image, player_x, player_y, wight, height)
+        self.player = player
+
     def update(self):
-        self.rect.x += self.speed
+        self.rect.x -= self.player.speed
 
 
 
-
-bird = Player('bird1.jpg', 200, 200, 2, 50, 50)
-tryba = Obstacles("tryba1.jpg", 1200, 400, 200, 200)
-tryban2 = Obstacles("tryba2.jpg", 1200, 0, 200, 200)
+bird = Player('bird1.png', 200, 200, 2, 50, 50)
+tryba = Obstacles("tryba1.png", 1200, randint(200, win_width - 800), 200, 200, bird)
+tryban2 = Obstacles("tryba2.png", 1200,  randint(0, win_width + 40), 200, 200, bird)
 
 font.init()
 score_text = font.SysFont("Arial", 20)
@@ -58,7 +61,8 @@ point_x = 0
 lost_text = font.SysFont('Arial', 20)
 point_y = 0
 
-
+ground_scroll = 0
+scroll_speed = 4
 
 while run:
     window.blit(background, (0, 0))
@@ -76,11 +80,15 @@ while run:
 
     if finish == False:
         bird.reset()
-        tryba.reset()
-        tryban2.reset()
         bird.update()
+
+        tryba.reset()
+        tryba.update()
+
+        tryban2.reset()
+        tryban2.update()
         
-        if sprite.collide_rect(tryba, bird) or sprite.collide_rect(tryban2, bird) :
+        if sprite.collide_rect(tryba, bird) or sprite.collide_rect(tryban2, bird) or bird.rect.x >= 400:
             finish = True
             
 
